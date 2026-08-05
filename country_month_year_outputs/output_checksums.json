@@ -1,0 +1,200 @@
+[
+  {
+    "path": "/content/country_month_year_outputs/conversion_manifest.csv",
+    "filename": "conversion_manifest.csv",
+    "byte_count": 6066,
+    "content_sha256": "e9487087525af42d23d6186bb1a21c8b63f7c42b8cff3e488ad26c164c809cd6"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/civilian_targeting_events_and_fatalities__hrp_1.csv",
+    "filename": "civilian_targeting_events_and_fatalities__hrp_1.csv",
+    "byte_count": 34771290,
+    "content_sha256": "0c981ecc1293648d8172cf8f8bcf3e8dc8cbbe6c16fea0e0a93069f09dbc8405"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/civilian_targeting_events_and_fatalities__hrp_2.csv",
+    "filename": "civilian_targeting_events_and_fatalities__hrp_2.csv",
+    "byte_count": 26114498,
+    "content_sha256": "b4ae95c73097cac2f1a96719c5f8d7f2fc66cd4e7ccbb096b02e10fd96ec126b"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/civilian_targeting_events_and_fatalities__non_hrp.csv",
+    "filename": "civilian_targeting_events_and_fatalities__non_hrp.csv",
+    "byte_count": 799868,
+    "content_sha256": "2b9789cb9f7df17dc70ceecf9e4c8bde3473e9d51d9f05959f0ab9837f63d607"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/civilian_targeting_events_and_fatalities__tou.csv",
+    "filename": "civilian_targeting_events_and_fatalities__tou.csv",
+    "byte_count": 1483,
+    "content_sha256": "71327fcd4824fbaca4c6aa4724c040c53ded6400eca9742f65cecb282eabaa7c"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/demonstration_events__hrp_1.csv",
+    "filename": "demonstration_events__hrp_1.csv",
+    "byte_count": 33569519,
+    "content_sha256": "7f60be7fcdc21c8d5a099cda161c29b6895afd0874e649364dc2077df25a92af"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/demonstration_events__hrp_2.csv",
+    "filename": "demonstration_events__hrp_2.csv",
+    "byte_count": 25301588,
+    "content_sha256": "d85be7a9e0fdada48429ea75ccccd1f68b6e670c6fd98fb8958a21d1f8b3af40"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/demonstration_events__non_hrp.csv",
+    "filename": "demonstration_events__non_hrp.csv",
+    "byte_count": 744198,
+    "content_sha256": "9ba00b1d44349afad99fce06c1ff1c90178bdfdc574092314313d7812762c489"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/demonstration_events__tou.csv",
+    "filename": "demonstration_events__tou.csv",
+    "byte_count": 1483,
+    "content_sha256": "71327fcd4824fbaca4c6aa4724c040c53ded6400eca9742f65cecb282eabaa7c"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/gdacs_rss_information.csv",
+    "filename": "gdacs_rss_information.csv",
+    "byte_count": 129099,
+    "content_sha256": "a4c7fef462f320f2adee6779277181fea935e3bc81b6da01eefacae9c9097555"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/hdx_colab_download_manifest.csv",
+    "filename": "hdx_colab_download_manifest.csv",
+    "byte_count": 4874,
+    "content_sha256": "30f879d38c4a223368a906c365c29a06e5b07c5ffffb080acc8668d64668eff0"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/inform_risk_index_trends.csv",
+    "filename": "inform_risk_index_trends.csv",
+    "byte_count": 390221,
+    "content_sha256": "f373c963d062da71905902d5f15bed277e493665a0192fd29d22206666e4920b"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/political_violence_events_and_fatalities__hrp_1.csv",
+    "filename": "political_violence_events_and_fatalities__hrp_1.csv",
+    "byte_count": 34793683,
+    "content_sha256": "4b55840250f06ecac9bb34452a0c84ea12100b1937d6a80a1a5528144a62b072"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/political_violence_events_and_fatalities__hrp_2.csv",
+    "filename": "political_violence_events_and_fatalities__hrp_2.csv",
+    "byte_count": 26129636,
+    "content_sha256": "5222f5ac987652bbafd3ec95dcb73e80cc44d7e9248d8df42c263ca0464d85a6"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/political_violence_events_and_fatalities__non_hrp.csv",
+    "filename": "political_violence_events_and_fatalities__non_hrp.csv",
+    "byte_count": 803750,
+    "content_sha256": "2a1249e3dee001792558e9c3aae565673ea38ae96efd56f42afcc6b1201ff888"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/political_violence_events_and_fatalities__tou.csv",
+    "filename": "political_violence_events_and_fatalities__tou.csv",
+    "byte_count": 1483,
+    "content_sha256": "71327fcd4824fbaca4c6aa4724c040c53ded6400eca9742f65cecb282eabaa7c"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/views_conflict_forecasts_country_month.csv",
+    "filename": "views_conflict_forecasts_country_month.csv",
+    "byte_count": 50414,
+    "content_sha256": "9a370ca6d16f83f9f7c56d9032bc606a54df21122a3b4c9f1fd596940ce2590d"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/who_covid_19_global_daily_data.csv",
+    "filename": "who_covid_19_global_daily_data.csv",
+    "byte_count": 26260426,
+    "content_sha256": "3097a33dbd91df96f6f3b4a6caa6c0ab40abac4c09d38f3b6c9c29da828abb3c"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/whs2026_datadownload_as_of_2026_08_02.csv",
+    "filename": "whs2026_datadownload_as_of_2026_08_02.csv",
+    "byte_count": 1336411,
+    "content_sha256": "704fe2f998d75cc2c2736f7d30a476b3ce2aac63e79075f7e6ca89f6e917969c"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/worldriskindex_meta__imputation_variables.csv",
+    "filename": "worldriskindex_meta__imputation_variables.csv",
+    "byte_count": 43112,
+    "content_sha256": "071c65772478ebbacd95b2bd3ee40ea35288a08b55c4c262f0a4794d66dd77b4"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/worldriskindex_meta__worldriskindex.csv",
+    "filename": "worldriskindex_meta__worldriskindex.csv",
+    "byte_count": 32977,
+    "content_sha256": "ed9f96898c31fc5ac25b6a0a8924d4c5f91c2166f3cecdabad2e5bd1efb03dde"
+  },
+  {
+    "path": "/content/country_month_year_outputs/raw_converted_csv/worldriskindex_trend.csv",
+    "filename": "worldriskindex_trend.csv",
+    "byte_count": 7301409,
+    "content_sha256": "a12467a939b3fcadfa2dc83b0c77f8bfe17e781e1512a25a478cd519a9b657a3"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/civilian_targeting_events_and_fatalities__country_month_year.csv",
+    "filename": "civilian_targeting_events_and_fatalities__country_month_year.csv",
+    "byte_count": 175735321,
+    "content_sha256": "3da677c909ded198fbf2c907fdad32bd50a025e52c81ceded0f495fbc92d4594"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/demonstration_events__country_month_year.csv",
+    "filename": "demonstration_events__country_month_year.csv",
+    "byte_count": 132403552,
+    "content_sha256": "0041bd5cec04de79519fcf51667254ca1bfd35231a700f8d657b09c0bbb0430a"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/gdacs_rss_information__country_month_year.csv",
+    "filename": "gdacs_rss_information__country_month_year.csv",
+    "byte_count": 149479,
+    "content_sha256": "e343982ded44c346ac02509484d6f83867316e7a30c21154ee5943ce790cfb07"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/hdx_colab_download_manifest__country_month_year.csv",
+    "filename": "hdx_colab_download_manifest__country_month_year.csv",
+    "byte_count": 5501,
+    "content_sha256": "ebe2570468a003a448d497edc11cc83be69c59329a6e3bbdedd31ff0921830a4"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/inform_risk_index_trends__country_month_year.csv",
+    "filename": "inform_risk_index_trends__country_month_year.csv",
+    "byte_count": 925581,
+    "content_sha256": "032812feeb76eef5de401b440bdc84128299c790e527352059720408ebc81b82"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/political_violence_events_and_fatalities__country_month_year.csv",
+    "filename": "political_violence_events_and_fatalities__country_month_year.csv",
+    "byte_count": 175776734,
+    "content_sha256": "48adfba88d885abb0cf0d55dd3624647d895267d1b50b8edc73c9a1162d98646"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/views_conflict_forecasts_country_month__country_month_year.csv",
+    "filename": "views_conflict_forecasts_country_month__country_month_year.csv",
+    "byte_count": 164655,
+    "content_sha256": "5fc4cddf6293533047a3f0ec064a172459da53eb51a62de68d9f3f47e1cc7135"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/who_covid_19_global_daily_data__country_month_year.csv",
+    "filename": "who_covid_19_global_daily_data__country_month_year.csv",
+    "byte_count": 80322436,
+    "content_sha256": "5802418ce87f1ec77097b3a76fc5947159fda3f4c047d358c2cb9e128fa366be"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/whs2026_datadownload_as_of_2026_08_02__country_month_year.csv",
+    "filename": "whs2026_datadownload_as_of_2026_08_02__country_month_year.csv",
+    "byte_count": 2126823,
+    "content_sha256": "8a51960f1537497501957b10f248188ea0980c8827bd6ec7e7dd92fca3f98fb0"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/worldriskindex_meta__country_month_year.csv",
+    "filename": "worldriskindex_meta__country_month_year.csv",
+    "byte_count": 102432,
+    "content_sha256": "d8031161b9e8475f84718c656ed1f534d787df48de42c9ffe971958e9b3ff142"
+  },
+  {
+    "path": "/content/country_month_year_outputs/silver_country_month_year/worldriskindex_trend__country_month_year.csv",
+    "filename": "worldriskindex_trend__country_month_year.csv",
+    "byte_count": 7607651,
+    "content_sha256": "4cb1dac7e9d25d4ef85cb423acfaa5819622fa5abda5a146131ec8b40c188d69"
+  }
+]
