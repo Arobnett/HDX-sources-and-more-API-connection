@@ -13,3 +13,4 @@
   9. Model Deployment
   10. Model Monitoring and Maintenance
  
+# [src layout vs flat layout - Python Packaging User Guide](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
