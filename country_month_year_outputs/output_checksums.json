@@ -3,25 +3,25 @@
     "path": "/content/country_month_year_outputs/conversion_manifest.csv",
     "filename": "conversion_manifest.csv",
     "byte_count": 6066,
-    "content_sha256": "e9487087525af42d23d6186bb1a21c8b63f7c42b8cff3e488ad26c164c809cd6"
+    "content_sha256": "3438ffe1f51ad74d0653afaffca7f5fb1b414ba13212624b40ec292b8f6ac077"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/civilian_targeting_events_and_fatalities__hrp_1.csv",
     "filename": "civilian_targeting_events_and_fatalities__hrp_1.csv",
-    "byte_count": 34771290,
-    "content_sha256": "0c981ecc1293648d8172cf8f8bcf3e8dc8cbbe6c16fea0e0a93069f09dbc8405"
+    "byte_count": 34771317,
+    "content_sha256": "17db839cc7c1f0a348e50b79825d90ca6a250fa775e8a5f94bd9fbf9251287f8"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/civilian_targeting_events_and_fatalities__hrp_2.csv",
     "filename": "civilian_targeting_events_and_fatalities__hrp_2.csv",
-    "byte_count": 26114498,
-    "content_sha256": "b4ae95c73097cac2f1a96719c5f8d7f2fc66cd4e7ccbb096b02e10fd96ec126b"
+    "byte_count": 26114514,
+    "content_sha256": "71626c6845cac72a5aee8595b048ea1fd4b85bf61508397f406ec8154c06f348"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/civilian_targeting_events_and_fatalities__non_hrp.csv",
     "filename": "civilian_targeting_events_and_fatalities__non_hrp.csv",
-    "byte_count": 799868,
-    "content_sha256": "2b9789cb9f7df17dc70ceecf9e4c8bde3473e9d51d9f05959f0ab9837f63d607"
+    "byte_count": 799875,
+    "content_sha256": "31fd06aa7f6d1ccaf1954d06bb8a2b4bbe1e05cdce7f25e021b86ace4f5886a9"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/civilian_targeting_events_and_fatalities__tou.csv",
@@ -32,20 +32,20 @@
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/demonstration_events__hrp_1.csv",
     "filename": "demonstration_events__hrp_1.csv",
-    "byte_count": 33569519,
-    "content_sha256": "7f60be7fcdc21c8d5a099cda161c29b6895afd0874e649364dc2077df25a92af"
+    "byte_count": 33569528,
+    "content_sha256": "dab91f67fc2cfafefdd152316ed11bb4a79fe57799d3c89cc688ced599751ee4"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/demonstration_events__hrp_2.csv",
     "filename": "demonstration_events__hrp_2.csv",
-    "byte_count": 25301588,
-    "content_sha256": "d85be7a9e0fdada48429ea75ccccd1f68b6e670c6fd98fb8958a21d1f8b3af40"
+    "byte_count": 25301592,
+    "content_sha256": "885853d006cd098bb263ba947f7a9aaa32d5bf82c3fcc69db49774a63f9a88cf"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/demonstration_events__non_hrp.csv",
     "filename": "demonstration_events__non_hrp.csv",
-    "byte_count": 744198,
-    "content_sha256": "9ba00b1d44349afad99fce06c1ff1c90178bdfdc574092314313d7812762c489"
+    "byte_count": 744205,
+    "content_sha256": "42f16089ca08ffe89fa482cdcef7dfbf6458b8d3478b3aa0925a5a47b5d36695"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/demonstration_events__tou.csv",
@@ -56,14 +56,14 @@
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/gdacs_rss_information.csv",
     "filename": "gdacs_rss_information.csv",
-    "byte_count": 129099,
-    "content_sha256": "a4c7fef462f320f2adee6779277181fea935e3bc81b6da01eefacae9c9097555"
+    "byte_count": 143271,
+    "content_sha256": "c3665beb45985595117ea56c24aa96a97911e5764dd0fc2f5aa9f5994e62c2d0"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/hdx_colab_download_manifest.csv",
     "filename": "hdx_colab_download_manifest.csv",
     "byte_count": 4874,
-    "content_sha256": "30f879d38c4a223368a906c365c29a06e5b07c5ffffb080acc8668d64668eff0"
+    "content_sha256": "852889389a0338ce2222377765a23c3b72dc8a91b3f1fca50eef8dcfdbf1af54"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/inform_risk_index_trends.csv",
@@ -74,20 +74,20 @@
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/political_violence_events_and_fatalities__hrp_1.csv",
     "filename": "political_violence_events_and_fatalities__hrp_1.csv",
-    "byte_count": 34793683,
-    "content_sha256": "4b55840250f06ecac9bb34452a0c84ea12100b1937d6a80a1a5528144a62b072"
+    "byte_count": 34793771,
+    "content_sha256": "1bb318e55c902f821adbfade94102f3755a6a4e2d5eeafe9382d72619b25f2e7"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/political_violence_events_and_fatalities__hrp_2.csv",
     "filename": "political_violence_events_and_fatalities__hrp_2.csv",
-    "byte_count": 26129636,
-    "content_sha256": "5222f5ac987652bbafd3ec95dcb73e80cc44d7e9248d8df42c263ca0464d85a6"
+    "byte_count": 26129664,
+    "content_sha256": "893aef3e9ff6426fe785cc646a6036d5a16e24daf65197af11b6b5a2ff8c90a8"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/political_violence_events_and_fatalities__non_hrp.csv",
     "filename": "political_violence_events_and_fatalities__non_hrp.csv",
-    "byte_count": 803750,
-    "content_sha256": "2a1249e3dee001792558e9c3aae565673ea38ae96efd56f42afcc6b1201ff888"
+    "byte_count": 803762,
+    "content_sha256": "a039b208ac1a0de7bb195900033420b1ef0f6f5e2a554c441f443abe0594cb79"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/political_violence_events_and_fatalities__tou.csv",
@@ -134,26 +134,26 @@
   {
     "path": "/content/country_month_year_outputs/silver_country_month_year/civilian_targeting_events_and_fatalities__country_month_year.csv",
     "filename": "civilian_targeting_events_and_fatalities__country_month_year.csv",
-    "byte_count": 175735321,
-    "content_sha256": "3da677c909ded198fbf2c907fdad32bd50a025e52c81ceded0f495fbc92d4594"
+    "byte_count": 175735371,
+    "content_sha256": "ebcb7d793d8fcac4aaaf104b57b918337a07be0545ed9a40586d18c005737edb"
   },
   {
     "path": "/content/country_month_year_outputs/silver_country_month_year/demonstration_events__country_month_year.csv",
     "filename": "demonstration_events__country_month_year.csv",
-    "byte_count": 132403552,
-    "content_sha256": "0041bd5cec04de79519fcf51667254ca1bfd35231a700f8d657b09c0bbb0430a"
+    "byte_count": 132403572,
+    "content_sha256": "0d118d7fe307a54f2d13d064061bd703d2ac4097963e5d1944030561e228a99a"
   },
   {
     "path": "/content/country_month_year_outputs/silver_country_month_year/gdacs_rss_information__country_month_year.csv",
     "filename": "gdacs_rss_information__country_month_year.csv",
-    "byte_count": 149479,
-    "content_sha256": "e343982ded44c346ac02509484d6f83867316e7a30c21154ee5943ce790cfb07"
+    "byte_count": 165864,
+    "content_sha256": "740b7844edced5a501039b3b56119cfa76dbfa5c496cddedcf56eef48ab46064"
   },
   {
     "path": "/content/country_month_year_outputs/silver_country_month_year/hdx_colab_download_manifest__country_month_year.csv",
     "filename": "hdx_colab_download_manifest__country_month_year.csv",
     "byte_count": 5501,
-    "content_sha256": "ebe2570468a003a448d497edc11cc83be69c59329a6e3bbdedd31ff0921830a4"
+    "content_sha256": "733d1df3eb1288f155e795822dc6276fe4f5912bc94f6ee0dca2cbd3cf7cefd2"
   },
   {
     "path": "/content/country_month_year_outputs/silver_country_month_year/inform_risk_index_trends__country_month_year.csv",
@@ -164,8 +164,8 @@
   {
     "path": "/content/country_month_year_outputs/silver_country_month_year/political_violence_events_and_fatalities__country_month_year.csv",
     "filename": "political_violence_events_and_fatalities__country_month_year.csv",
-    "byte_count": 175776734,
-    "content_sha256": "48adfba88d885abb0cf0d55dd3624647d895267d1b50b8edc73c9a1162d98646"
+    "byte_count": 175776862,
+    "content_sha256": "b77c16f596bb08f64d406ba85a5aed24d883210013337fa46b7ebe7c12a78298"
   },
   {
     "path": "/content/country_month_year_outputs/silver_country_month_year/views_conflict_forecasts_country_month__country_month_year.csv",
