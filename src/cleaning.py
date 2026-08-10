@@ -215,7 +215,7 @@ def clean_silver_directory(silver_dir: Path = SILVER_DIR, rules_path: Path = SOU
             })
             if not rejected.empty:  # Preserve rejected rows for transparent review.
                 rejected = rejected.copy()  # Avoid mutating handler-owned data.
-                rejected.insert(0, "source_file", source_file)  # Label the reject source.
+                rejected["source_file"] = source_file  # Label the reject source without duplicating existing columns.
                 reject_rows.append(rejected)  # Add to the combined reject report.
         except Exception as exc:  # Record source-level failures without hiding them.
             summary_rows.append({"source_file": source_file, "output_name": output_name, "status": "error", "error": str(exc)})  # Store error text.
