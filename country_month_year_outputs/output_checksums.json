@@ -3,7 +3,7 @@
     "path": "/content/country_month_year_outputs/conversion_manifest.csv",
     "filename": "conversion_manifest.csv",
     "byte_count": 6066,
-    "content_sha256": "75e3d576ac8358b2ae108c7dd8da76430c4fc5cda354465edfc686c1f92b9960"
+    "content_sha256": "c90c9d59c75add31ba480f9940836b144b0eaf7a152bf8a6f098c783aa48251d"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/civilian_targeting_events_and_fatalities__hrp_1.csv",
@@ -63,7 +63,7 @@
     "path": "/content/country_month_year_outputs/raw_converted_csv/hdx_colab_download_manifest.csv",
     "filename": "hdx_colab_download_manifest.csv",
     "byte_count": 4874,
-    "content_sha256": "79c471b5ef79970b96d31d913a2470bc5211ebac38ac04e49aa65826bbb286f1"
+    "content_sha256": "fb5c090d8bd00c0e16d8d5023abfd4b4469ed75291f2a1609ca6164494409b95"
   },
   {
     "path": "/content/country_month_year_outputs/raw_converted_csv/inform_risk_index_trends.csv",
@@ -153,7 +153,7 @@
     "path": "/content/country_month_year_outputs/silver_country_month_year/hdx_colab_download_manifest__country_month_year.csv",
     "filename": "hdx_colab_download_manifest__country_month_year.csv",
     "byte_count": 5501,
-    "content_sha256": "db4e875b7057747324b00c2854d0477c0fcdd91a3ab9453abaf2bf93bc8d7e2e"
+    "content_sha256": "df316ec7eba4ad8755c7199497beaf6fdba0a5727280e1075d35f8a300f3e362"
   },
   {
     "path": "/content/country_month_year_outputs/silver_country_month_year/inform_risk_index_trends__country_month_year.csv",
