@@ -1,5 +1,11 @@
 # HDX-sources-and-more-API-connections
-- [Open .ipynb notebook in Colab](https://colab.research.google.com/drive/1GW2NDktaVNNNP_5DhWLUIYMSttrd27LV#scrollTo=cI_T-l6XfNMo)
+- ## Quick Start
+
+Run the latest public-source pipeline in Colab:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Arobnett/HDX-sources-and-more-API-connection/blob/main/notebooks/00_main_run_all_open_source.ipynb)
+
+This notebook regenerates the latest public Bronze/Silver/Gold-style outputs and EDA reports, then downloads them as a ZIP.
   
 # [Machine Learning Life-cycle Workflow](https://www.geeksforgeeks.org/machine-learning/machine-learning-lifecycle/)
   1. Problem Definition
@@ -13,4 +19,4 @@
   9. Model Deployment
   10. Model Monitoring and Maintenance
  
-# [src layout vs flat layout - Python Packaging User Guide](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
+### [src layout vs flat layout - Python Packaging User Guide](https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout)
