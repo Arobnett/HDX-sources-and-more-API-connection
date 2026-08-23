@@ -15,11 +15,22 @@ KEY_COLUMNS = ["iso3", "country", "year", "month"]  # Define the target modeling
 BASE_OUTPUT_NAME = "base_feature_table_country_month_year.csv"  # Name the memory-safe base feature table.
 ASSEMBLY_REPORT_NAME = "feature_assembly_report.csv"  # Name the source-level assembly report.
 COLUMN_CATALOG_NAME = "feature_column_catalog.csv"  # Name the feature provenance catalog.
-NON_FEATURE_COLUMNS = {"country_id", "month_id"}  # Keep optional reference IDs out of model feature columns.
+NON_FEATURE_COLUMNS = {  # Keep identifiers and lineage fields out of model features.
+    "country_id",
+    "month_id",
+    "country_original",
+    "iso3_original",
+    "annual_carried_monthly",
+    "source_dataset",
+    "source_file",
+    "source_sheet_name",
+}
 WIDE_SOURCE_NAMES = {  # Keep very wide sources out of the base table.
     "clean_whs2026_country_month.csv",
     "clean_worldriskindex_country_month.csv",
 }
+
+
 def _clean_prefix(value: str) -> str:  # Build a safe prefix from a cleaned source filename.
     """Return a stable snake_case prefix for source-derived feature names."""  # Document prefix behavior.
     stem = Path(value).stem  # Remove the CSV suffix from the source name.
@@ -57,7 +68,7 @@ def _prepare_source_frame(path: Path) -> tuple[pd.DataFrame, dict[str, object], 
     )
     report = {  # Build source-level assembly metadata.
         "source_file": path.name,  # Record the cleaned source filename.
-        "input_rows": len(raw),  # Record source row count.
+        "input_rows": len(raw),  # Record source row count after geographic validation.
         "feature_columns": len(feature_columns),  # Record feature column count from this source.
         **validation,  # Include source-level key validation.
     }
@@ -67,32 +78,40 @@ def _prepare_source_frame(path: Path) -> tuple[pd.DataFrame, dict[str, object], 
 def _outer_join(left: pd.DataFrame, right: pd.DataFrame) -> pd.DataFrame:  # Merge two prepared feature frames.
     """Outer-join two country-month feature tables on the modeling key."""  # Explain merge behavior.
     return left.merge(right, on=KEY_COLUMNS, how="outer", validate="one_to_one")  # Preserve partial coverage and prevent duplicate-key blowups.
+
+
 def assemble_feature_table(clean_dir: Path = CLEAN_DIR) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:  # Main public entry point.
     """Assemble normal-width cleaned outputs into a memory-safe base feature table."""  # Explain function contract.
     ensure_output_directories()  # Create generated output folders only.
-    clean_paths = sorted(clean_dir.glob("*.csv"))  # Find all cleaned feature outputs from Step 03c.
-    if not clean_paths:  # Stop clearly when 03c has not been run.
+    clean_paths = sorted(clean_dir.glob("*.csv"))  # Find all cleaned feature outputs from Step 03c/03b.
+    if not clean_paths:  # Stop clearly when cleaning has not been run.
         raise FileNotFoundError(f"No cleaned CSV files found in {clean_dir}")  # Raise a visible path-specific error.
 
     base_paths = [path for path in clean_paths if path.name not in WIDE_SOURCE_NAMES]  # Select normal-width sources.
     wide_paths = [path for path in clean_paths if path.name in WIDE_SOURCE_NAMES]  # Defer wide sources.
 
-    prepared_frames: list[pd.DataFrame] = []  # Collect source frames ready for joining.
+    prepared_frames: list[pd.DataFrame] = []  # Collect non-empty source frames ready for joining.
     report_rows: list[dict[str, object]] = []  # Collect source-level report records.
     catalog_frames: list[pd.DataFrame] = []  # Collect feature provenance catalog frames.
 
     for path in base_paths:  # Process normal-width sources only.
         prepared, report, catalog = _prepare_source_frame(path)  # Validate and rename one source table.
+        if prepared.empty:  # Keep zero-coverage sources from creating all-null Gold columns.
+            report_rows.append({**report, "assembly_role": "zero_coverage_excluded", "included_in_base_table": False})  # Record explicit exclusion.
+            continue  # Move to the next source without adding its columns to Gold.
         prepared_frames.append(prepared)  # Keep the prepared frame for assembly.
         report_rows.append({**report, "assembly_role": "base_feature_table", "included_in_base_table": True})  # Mark as included.
-        catalog_frames.append(catalog)  # Keep source-column provenance for reporting.
+        catalog_frames.append(catalog)  # Keep source-column provenance only for assembled features.
 
-    if not prepared_frames:  # Stop clearly if every source was deferred.
-        raise FileNotFoundError(f"No base feature CSV files found in {clean_dir}")  # Raise a visible path-specific error.
+    if not prepared_frames:  # Stop clearly if every source was deferred or empty.
+        raise FileNotFoundError(f"No non-empty base feature CSV files found in {clean_dir}")  # Raise a visible path-specific error.
 
     assembled = reduce(_outer_join, prepared_frames)  # Combine normal-width sources into one base table.
     assembled = assembled.sort_values(KEY_COLUMNS).reset_index(drop=True)  # Make output row order deterministic.
     assembled_validation = _validate_key(assembled)  # Validate final assembled key uniqueness.
+    if assembled_validation["key_unique"] is not True:  # Block writes when Gold does not preserve one-to-one keys.
+        raise ValueError(f"Gold assembly key validation failed: {assembled_validation}")  # Stop instead of writing ambiguous output.
+
     assembled_path = MODEL_FEATURES_DIR / BASE_OUTPUT_NAME  # Build the base output path.
     assembled.to_csv(assembled_path, index=False)  # Write the base feature table.
 
@@ -101,7 +120,7 @@ def assemble_feature_table(clean_dir: Path = CLEAN_DIR) -> tuple[pd.DataFrame, p
         report_rows.append({  # Store deferred-source metadata.
             "source_file": path.name,
             "input_rows": None,
-            "feature_columns": max(len(header) - len(KEY_COLUMNS), 0),
+            "feature_columns": max(len([column for column in header if column not in KEY_COLUMNS and column not in NON_FEATURE_COLUMNS]), 0),
             "key_unique": None,
             "duplicate_key_rows": None,
             "missing_key_columns": "",
@@ -121,7 +140,8 @@ def assemble_feature_table(clean_dir: Path = CLEAN_DIR) -> tuple[pd.DataFrame, p
     report.to_csv(FEATURE_REPORTS_DIR / ASSEMBLY_REPORT_NAME, index=False)  # Write source-level assembly report.
     catalog.to_csv(FEATURE_REPORTS_DIR / COLUMN_CATALOG_NAME, index=False)  # Write feature provenance catalog.
 
-    print(f"Base sources merged: {len(base_paths)}")  # Show base source count.
+    print(f"Base sources merged: {len(prepared_frames)}")  # Show non-empty base source count.
+    print(f"Zero-coverage sources excluded: {[row['source_file'] for row in report_rows if row.get('assembly_role') == 'zero_coverage_excluded']}")  # Show empty-source exclusions.
     print(f"Wide sources deferred: {[path.name for path in wide_paths]}")  # Show deferred source names.
     print(f"Base feature rows: {len(assembled):,}")  # Show assembled row count.
     print(f"Base feature columns: {len(assembled.columns):,}")  # Show assembled column count.
