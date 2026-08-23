@@ -7,7 +7,7 @@
 
 This opens the public-source pipeline in Colab. Run all cells to regenerate Bronze/Silver/Gold-style public outputs, EDA reports, and a timestamped ZIP download.
 
-Do not edit notebooks directly in GitHub. If changes are needed, open a pull request.
+Do not edit notebooks directly in GitHub. If changes are needed, open a [pull request](https://docs.github.com/en/pull-requests).
   
 # [Machine Learning Life-cycle Workflow](https://www.geeksforgeeks.org/machine-learning/machine-learning-lifecycle/)
   1. Problem Definition
