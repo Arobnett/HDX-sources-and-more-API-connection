@@ -8,11 +8,19 @@ from typing import Callable  # Type callable source handlers.
 
 import pandas as pd  # Read, transform, and write tabular source files.
 
+try:  # Prefer pycountry when Colab or the local environment has it available.
+    import pycountry  # Convert ISO2 country codes to ISO3.
+except ImportError:  # Keep the cleaning module usable without optional dependencies.
+    pycountry = None  # Fall back to the small manual mapping below.
+
 from paths import CLEAN_DIR, CLEAN_REPORTS_DIR, SILVER_DIR, SOURCE_CLEANING_RULES_PATH, ensure_output_directories  # Import canonical paths.
 
 
 KEY_COLUMNS = ["iso3", "country", "year", "month"]  # Define the target modeling grain.
 MONTHS = list(range(1, 13))  # Expand annual sources to every month explicitly.
+MANUAL_ISO2_TO_ISO3 = {  # Cover common nonstandard or dependency-free ISO2 conversions.
+    "XK": "XKX",  # Preserve Kosovo-like codes when source systems use XK.
+}  # Keep manual overrides intentionally small and auditable.
 METADATA_ONLY_SOURCES = {  # List source files that must never become model features.
     "hdx_colab_download_manifest__country_month_year.csv",
     "worldriskindex_meta__country_month_year.csv",
@@ -47,12 +55,47 @@ def _validate_key(frame: pd.DataFrame) -> dict[str, object]:  # Validate the tar
     return {"key_unique": duplicate_rows == 0, "duplicate_key_rows": duplicate_rows, "missing_key_columns": ""}  # Return validation fields.
 
 
+def _iso2_to_iso3(value: str) -> str | None:  # Convert ISO2 codes to ISO3 when possible.
+    """Return an ISO3 code for a two-letter country code."""  # Explain helper behavior.
+    override = MANUAL_ISO2_TO_ISO3.get(value)  # Check manual overrides first.
+    if override:  # Use explicit overrides when present.
+        return override  # Return the override ISO3 value.
+    if pycountry is None:  # Avoid hard failure when optional dependency is unavailable.
+        return None  # Report unresolved codes without guessing.
+    country = pycountry.countries.get(alpha_2=value)  # Look up ISO2 code in pycountry.
+    return country.alpha_3 if country else None  # Return ISO3 or unresolved marker.
+
+
+def _normalize_country_keys(frame: pd.DataFrame) -> pd.DataFrame:  # Normalize country key fields.
+    """Standardize country keys before source-specific aggregation."""  # Explain helper purpose.
+    normalized = frame.copy()  # Avoid mutating caller-owned data.
+    if "iso3" in normalized.columns:  # Normalize only when the key column exists.
+        normalized["iso3_original"] = normalized["iso3"]  # Preserve original code for reject review.
+        normalized["iso3"] = normalized["iso3"].astype("string").str.strip().str.upper()  # Normalize spacing and case.
+        normalized["iso3"] = normalized["iso3"].map(lambda value: _iso2_to_iso3(value) if isinstance(value, str) and len(value) == 2 else value)  # Convert ISO2 to ISO3.
+    if "country" in normalized.columns:  # Normalize country labels when present.
+        normalized["country"] = normalized["country"].astype("string").str.strip()  # Normalize country-label spacing.
+    return normalized  # Return normalized frame.
+
+
 def _split_model_ready_rows(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:  # Separate usable rows from rejects.
-    """Exclude rows without ISO3 from model-ready output and retain them for reporting."""  # Preserve rejected rows safely.
-    if "iso3" not in frame.columns:  # Avoid failing on unexpected source schemas.
-        return frame.copy(), frame.iloc[0:0].copy()  # Return no rejects when the expected key is absent.
-    reject_mask = frame["iso3"].isna() | frame["iso3"].astype(str).str.strip().eq("")  # Identify missing ISO3 keys.
-    return frame.loc[~reject_mask].copy(), frame.loc[reject_mask].copy()  # Return accepted rows and rejected rows.
+    """Exclude invalid country keys from model-ready output and retain them for reporting."""  # Preserve rejected rows safely.
+    normalized = _normalize_country_keys(frame)  # Standardize ISO keys before validation.
+    if "iso3" not in normalized.columns:  # Avoid failing on unexpected source schemas.
+        return normalized.copy(), normalized.iloc[0:0].copy()  # Return no rejects when the expected key is absent.
+    iso_text = normalized["iso3"].astype("string").str.strip()  # Prepare ISO key text for checks.
+    country_text = normalized["country"].astype("string") if "country" in normalized.columns else pd.Series("", index=normalized.index, dtype="string")  # Prepare country text.
+    missing_iso = iso_text.isna() | iso_text.eq("")  # Identify missing country codes.
+    invalid_iso_length = iso_text.notna() & iso_text.ne("") & iso_text.str.len().ne(3)  # Identify unresolved non-ISO3 codes.
+    multi_country = country_text.str.count(",", flags=0).fillna(0).ge(2)  # Flag obvious multi-country regional rows.
+    reject_mask = missing_iso | invalid_iso_length | multi_country  # Combine reject reasons.
+    rejected = normalized.loc[reject_mask].copy()  # Collect rejected rows.
+    if not rejected.empty:  # Add transparent reject reason when rows are excluded.
+        rejected["reject_reason"] = ""  # Initialize reject reason.
+        rejected.loc[missing_iso.loc[reject_mask].to_numpy(), "reject_reason"] = "missing_iso3"  # Label missing ISO rows.
+        rejected.loc[invalid_iso_length.loc[reject_mask].to_numpy(), "reject_reason"] = "unresolved_country_code"  # Label unresolved codes.
+        rejected.loc[multi_country.loc[reject_mask].to_numpy(), "reject_reason"] = "multi_country_row"  # Label multi-country rows.
+    return normalized.loc[~reject_mask].copy(), rejected  # Return accepted rows and rejected rows.
 
 
 def _aggregate_event_source(frame: pd.DataFrame, value_columns: list[str]) -> tuple[pd.DataFrame, pd.DataFrame]:  # Aggregate event/admin sources.
