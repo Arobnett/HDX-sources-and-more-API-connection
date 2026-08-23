@@ -12,12 +12,14 @@ from paths import CLEAN_DIR, FEATURE_REPORTS_DIR, MODEL_FEATURES_DIR, ensure_out
 
 
 KEY_COLUMNS = ["iso3", "country", "year", "month"]  # Define the target modeling grain.
-ASSEMBLED_OUTPUT_NAME = "model_feature_table_country_month_year.csv"  # Name the assembled modeling table.
+BASE_OUTPUT_NAME = "base_feature_table_country_month_year.csv"  # Name the memory-safe base feature table.
 ASSEMBLY_REPORT_NAME = "feature_assembly_report.csv"  # Name the source-level assembly report.
 COLUMN_CATALOG_NAME = "feature_column_catalog.csv"  # Name the feature provenance catalog.
 NON_FEATURE_COLUMNS = {"country_id", "month_id"}  # Keep optional reference IDs out of model feature columns.
-
-
+WIDE_SOURCE_NAMES = {  # Keep very wide sources out of the base table.
+    "clean_whs2026_country_month.csv",
+    "clean_worldriskindex_country_month.csv",
+}
 def _clean_prefix(value: str) -> str:  # Build a safe prefix from a cleaned source filename.
     """Return a stable snake_case prefix for source-derived feature names."""  # Document prefix behavior.
     stem = Path(value).stem  # Remove the CSV suffix from the source name.
@@ -64,36 +66,65 @@ def _prepare_source_frame(path: Path) -> tuple[pd.DataFrame, dict[str, object], 
 
 def _outer_join(left: pd.DataFrame, right: pd.DataFrame) -> pd.DataFrame:  # Merge two prepared feature frames.
     """Outer-join two country-month feature tables on the modeling key."""  # Explain merge behavior.
-    return left.merge(right, on=KEY_COLUMNS, how="outer")  # Preserve partial source coverage across countries and months.
-
-
+    return left.merge(right, on=KEY_COLUMNS, how="outer", validate="one_to_one")  # Preserve partial coverage and prevent duplicate-key blowups.
 def assemble_feature_table(clean_dir: Path = CLEAN_DIR) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:  # Main public entry point.
-    """Assemble all cleaned source outputs into one wide modeling feature table."""  # Explain function contract.
+    """Assemble normal-width cleaned outputs into a memory-safe base feature table."""  # Explain function contract.
     ensure_output_directories()  # Create generated output folders only.
     clean_paths = sorted(clean_dir.glob("*.csv"))  # Find all cleaned feature outputs from Step 03c.
     if not clean_paths:  # Stop clearly when 03c has not been run.
         raise FileNotFoundError(f"No cleaned CSV files found in {clean_dir}")  # Raise a visible path-specific error.
+
+    base_paths = [path for path in clean_paths if path.name not in WIDE_SOURCE_NAMES]  # Select normal-width sources.
+    wide_paths = [path for path in clean_paths if path.name in WIDE_SOURCE_NAMES]  # Defer wide sources.
+
     prepared_frames: list[pd.DataFrame] = []  # Collect source frames ready for joining.
     report_rows: list[dict[str, object]] = []  # Collect source-level report records.
     catalog_frames: list[pd.DataFrame] = []  # Collect feature provenance catalog frames.
-    for path in clean_paths:  # Process each cleaned source file in stable filename order.
+
+    for path in base_paths:  # Process normal-width sources only.
         prepared, report, catalog = _prepare_source_frame(path)  # Validate and rename one source table.
         prepared_frames.append(prepared)  # Keep the prepared frame for assembly.
-        report_rows.append(report)  # Keep source-level metadata for reporting.
+        report_rows.append({**report, "assembly_role": "base_feature_table", "included_in_base_table": True})  # Mark as included.
         catalog_frames.append(catalog)  # Keep source-column provenance for reporting.
-    assembled = reduce(_outer_join, prepared_frames)  # Combine all sources into one wide table.
+
+    if not prepared_frames:  # Stop clearly if every source was deferred.
+        raise FileNotFoundError(f"No base feature CSV files found in {clean_dir}")  # Raise a visible path-specific error.
+
+    assembled = reduce(_outer_join, prepared_frames)  # Combine normal-width sources into one base table.
     assembled = assembled.sort_values(KEY_COLUMNS).reset_index(drop=True)  # Make output row order deterministic.
     assembled_validation = _validate_key(assembled)  # Validate final assembled key uniqueness.
-    assembled_path = MODEL_FEATURES_DIR / ASSEMBLED_OUTPUT_NAME  # Build the assembled output path.
-    assembled.to_csv(assembled_path, index=False)  # Write the modeling feature table.
+    assembled_path = MODEL_FEATURES_DIR / BASE_OUTPUT_NAME  # Build the base output path.
+    assembled.to_csv(assembled_path, index=False)  # Write the base feature table.
+
+    for path in wide_paths:  # Record deferred wide sources without loading them into memory.
+        header = pd.read_csv(path, nrows=0).columns.tolist()  # Read only the header to avoid memory pressure.
+        report_rows.append({  # Store deferred-source metadata.
+            "source_file": path.name,
+            "input_rows": None,
+            "feature_columns": max(len(header) - len(KEY_COLUMNS), 0),
+            "key_unique": None,
+            "duplicate_key_rows": None,
+            "missing_key_columns": "",
+            "assembly_role": "wide_feature_block_later",
+            "included_in_base_table": False,
+        })
+
     report = pd.DataFrame(report_rows)  # Build the source-level assembly report.
-    report["assembled_output_name"] = ASSEMBLED_OUTPUT_NAME  # Record the final output table name.
+    report["assembled_output_name"] = BASE_OUTPUT_NAME  # Record the final output table name.
     report["assembled_rows"] = len(assembled)  # Record final assembled row count.
     report["assembled_columns"] = len(assembled.columns)  # Record final assembled column count.
     report["assembled_key_unique"] = assembled_validation["key_unique"]  # Record final key uniqueness.
     report["assembled_duplicate_key_rows"] = assembled_validation["duplicate_key_rows"]  # Record final duplicate key rows.
     report["assembled_missing_key_columns"] = assembled_validation["missing_key_columns"]  # Record final missing key columns.
+
     catalog = pd.concat(catalog_frames, ignore_index=True, sort=False) if catalog_frames else pd.DataFrame(columns=["source_file", "original_column", "assembled_column"])  # Build feature catalog.
     report.to_csv(FEATURE_REPORTS_DIR / ASSEMBLY_REPORT_NAME, index=False)  # Write source-level assembly report.
     catalog.to_csv(FEATURE_REPORTS_DIR / COLUMN_CATALOG_NAME, index=False)  # Write feature provenance catalog.
+
+    print(f"Base sources merged: {len(base_paths)}")  # Show base source count.
+    print(f"Wide sources deferred: {[path.name for path in wide_paths]}")  # Show deferred source names.
+    print(f"Base feature rows: {len(assembled):,}")  # Show assembled row count.
+    print(f"Base feature columns: {len(assembled.columns):,}")  # Show assembled column count.
+    print(f"Wrote: {assembled_path}")  # Show written output path.
+
     return assembled, report, catalog  # Return outputs for notebooks and tests.
