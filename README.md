@@ -8,6 +8,20 @@ Use this Colab notebook to regenerate the latest public-source pipeline outputs 
 
 This public workflow does not use restricted target variables or internal operational datasets. Please do not edit notebooks directly in GitHub; proposed changes should go through a [pull request](https://docs.github.com/en/pull-requests).
 
+
+## Downloaded ZIP Structure
+
+The Colab runner keeps the repo's internal paths stable, but the downloaded ZIP uses clearer layer names:
+
+| Repo source folder | ZIP folder |
+| --- | --- |
+| `country_month_year_outputs/` | `01_bronze_standardized_public_sources/` |
+| `outputs/clean_country_month_year/` | `02_silver_clean_country_month_year/` |
+| `outputs/model_features/` | `03_gold_base_feature_table/` |
+| `outputs/feature_reports/` | `04_validation_reports/` |
+| `outputs/eda_reports/` | `05_eda_reports/` |
+| `outputs/eda_visuals/` | `06_eda_visuals/` |
+
 ## Machine Learning Life-cycle Workflow
 
 Reference: [GeeksforGeeks Machine Learning Lifecycle](https://www.geeksforgeeks.org/machine-learning/machine-learning-lifecycle/)
