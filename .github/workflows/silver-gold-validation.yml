@@ -1,0 +1,109 @@
+name: Silver to Gold Validation
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate-silver-gold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install pipeline dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pandas pycountry openpyxl
+
+      - name: Pull Git LFS data
+        run: git lfs pull
+
+      - name: Run Silver cleanup, geographic validation, and Gold assembly
+        shell: bash
+        run: |
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+
+          project_root = Path.cwd()
+          sys.path.insert(0, str(project_root / 'src'))
+
+          from cleaning import clean_silver_directory
+          from geographic_keys import validate_clean_directory
+          from feature_assembly import assemble_feature_table
+          from paths import CLEAN_DIR, CLEAN_REPORTS_DIR
+
+          clean_summary, _ = clean_silver_directory()
+          print('\nSILVER CLEANING SUMMARY')
+          print(clean_summary.to_string(index=False))
+
+          errors = clean_summary[clean_summary['status'].eq('error')]
+          if not errors.empty:
+              raise RuntimeError(f'Silver cleaning failures:\n{errors.to_string(index=False)}')
+
+          geo_summary = validate_clean_directory(CLEAN_DIR, CLEAN_REPORTS_DIR)
+          print('\nGEOGRAPHIC VALIDATION SUMMARY')
+          print(geo_summary.to_string(index=False))
+
+          if geo_summary.empty:
+              raise RuntimeError('Geographic validation returned no source files.')
+          if not geo_summary['key_unique'].all():
+              raise RuntimeError('At least one Silver source failed geographic key uniqueness.')
+
+          assembled, report, catalog = assemble_feature_table()
+          print('\nGOLD ASSEMBLY REPORT')
+          print(report.to_string(index=False))
+          print(f'\nGold rows: {len(assembled):,}')
+          print(f'Gold columns: {len(assembled.columns):,}')
+          print(f'Feature catalog rows: {len(catalog):,}')
+
+          key_columns = ['iso3', 'country', 'year', 'month']
+          if assembled.empty:
+              raise RuntimeError('Gold feature table is empty.')
+          if assembled.duplicated(key_columns).any():
+              raise RuntimeError('Gold feature table contains duplicate modeling keys.')
+
+          forbidden_lineage = {
+              'country_original',
+              'iso3_original',
+              'annual_carried_monthly',
+              'source_dataset',
+              'source_file',
+              'source_sheet_name',
+          }
+          leaked = [column for column in assembled.columns if column in forbidden_lineage]
+          if leaked:
+              raise RuntimeError(f'Lineage fields leaked into Gold: {leaked}')
+
+          zero_coverage = report.loc[
+              report['assembly_role'].eq('zero_coverage_excluded'),
+              'source_file',
+          ].tolist()
+          print(f'Zero-coverage sources excluded from Gold: {zero_coverage}')
+
+          print('\nSilver → Gold validation passed.')
+          PY
+
+      - name: Upload Gold and validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: silver-gold-validation-artifacts
+          if-no-files-found: warn
+          path: |
+            outputs/model_features/
+            outputs/feature_reports/
+            outputs/cleaning_reports/
