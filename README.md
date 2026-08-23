@@ -11,16 +11,16 @@ This public workflow does not use restricted target variables or internal operat
 
 ## Downloaded ZIP Structure
 
-The Colab runner keeps the repo's internal paths stable, but the downloaded ZIP uses clearer layer names:
+The Colab runner keeps the repo's internal paths stable, but the downloaded ZIP uses short folder names to avoid Windows path-length errors:
 
 | Repo source folder | ZIP folder |
 | --- | --- |
-| `country_month_year_outputs/` | `01_bronze_standardized_public_sources/` |
-| `outputs/clean_country_month_year/` | `02_silver_clean_country_month_year/` |
-| `outputs/model_features/` | `03_gold_base_feature_table/` |
-| `outputs/feature_reports/` | `04_validation_reports/` |
-| `outputs/eda_reports/` | `05_eda_reports/` |
-| `outputs/eda_visuals/` | `06_eda_visuals/` |
+| `country_month_year_outputs/` | `01_bronze/` |
+| `outputs/clean_country_month_year/` | `02_silver/` |
+| `outputs/model_features/` | `03_gold/` |
+| `outputs/feature_reports/` | `04_validation/` |
+| `outputs/eda_reports/` | `05_eda/` |
+| `outputs/eda_visuals/` | `06_visuals/` |
 
 ## Machine Learning Life-cycle Workflow
 
