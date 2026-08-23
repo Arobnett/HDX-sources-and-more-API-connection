@@ -1,11 +1,13 @@
 # HDX-sources-and-more-API-connections
 - ## Quick Start
 
-Run the latest public-source pipeline in Colab:
+## Run Latest Public Pipeline
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Arobnett/HDX-sources-and-more-API-connection/blob/main/notebooks/00_main_run_all_open_source.ipynb)
 
-This notebook regenerates the latest public Bronze/Silver/Gold-style outputs and EDA reports, then downloads them as a ZIP.
+This opens the public-source pipeline in Colab. Run all cells to regenerate Bronze/Silver/Gold-style public outputs, EDA reports, and a timestamped ZIP download.
+
+Do not edit notebooks directly in GitHub. If changes are needed, open a pull request.
   
 # [Machine Learning Life-cycle Workflow](https://www.geeksforgeeks.org/machine-learning/machine-learning-lifecycle/)
   1. Problem Definition
