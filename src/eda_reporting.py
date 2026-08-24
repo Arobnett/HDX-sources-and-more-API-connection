@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+from textwrap import fill
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
 
 KEY_COLUMNS = ["iso3", "country", "year", "month"]
+MIN_CORRELATION_OVERLAP = 100
+MEANINGFUL_CORRELATION_THRESHOLD = 0.30
 
 
 def _save_figure(path: Path) -> None:
@@ -17,6 +20,7 @@ def _save_figure(path: Path) -> None:
     plt.tight_layout()
     plt.savefig(path, dpi=180, bbox_inches="tight")
     plt.show()
+    plt.close()
 
 
 def generate_eda_outputs(
@@ -66,13 +70,7 @@ def generate_eda_outputs(
     fig.text(0.38, 0.71, "Public predictor features", fontsize=11)
     fig.text(0.68, 0.78, f"{base_features['iso3'].nunique():,}", fontsize=28, weight="bold")
     fig.text(0.68, 0.71, "Countries / ISO3 areas", fontsize=11)
-    fig.text(
-        0.08,
-        0.48,
-        f"{int(base_features['year'].min())}–{int(base_features['year'].max())}",
-        fontsize=26,
-        weight="bold",
-    )
+    fig.text(0.08, 0.48, f"{int(base_features['year'].min())}–{int(base_features['year'].max())}", fontsize=26, weight="bold")
     fig.text(0.08, 0.41, "Temporal span", fontsize=11)
     fig.text(0.48, 0.48, f"{duplicate_keys:,}", fontsize=26, weight="bold")
     fig.text(0.48, 0.41, "Duplicate modeling keys", fontsize=11)
@@ -99,11 +97,7 @@ def generate_eda_outputs(
     _save_figure(visuals_dir / "feature_missingness.png")
 
     # 3. Temporal coverage analysis.
-    year_coverage = (
-        base_features.groupby("year")[feature_columns]
-        .agg(lambda series: series.notna().mean() * 100)
-        .reset_index()
-    )
+    year_coverage = base_features.groupby("year")[feature_columns].agg(lambda series: series.notna().mean() * 100).reset_index()
     year_coverage.to_csv(reports_dir / "base_feature_year_coverage.csv", index=False)
 
     year_matrix = year_coverage.set_index("year").T
@@ -117,17 +111,11 @@ def generate_eda_outputs(
     _save_figure(visuals_dir / "temporal_coverage.png")
 
     # 4. Geographic coverage analysis.
-    country_coverage = (
-        base_features.groupby(["iso3", "country"])[feature_columns]
-        .agg(lambda series: series.notna().mean() * 100)
-        .reset_index()
-    )
+    country_coverage = base_features.groupby(["iso3", "country"])[feature_columns].agg(lambda series: series.notna().mean() * 100).reset_index()
     country_coverage["overall_coverage_pct"] = country_coverage[feature_columns].mean(axis=1)
     country_coverage.to_csv(reports_dir / "base_feature_country_coverage.csv", index=False)
 
-    lowest_country_coverage = country_coverage.nsmallest(30, "overall_coverage_pct").sort_values(
-        "overall_coverage_pct"
-    )
+    lowest_country_coverage = country_coverage.nsmallest(30, "overall_coverage_pct").sort_values("overall_coverage_pct")
     plt.figure(figsize=(11, 9))
     plt.barh(lowest_country_coverage["country"], lowest_country_coverage["overall_coverage_pct"])
     plt.xlabel("Mean predictor coverage (%)")
@@ -142,50 +130,72 @@ def generate_eda_outputs(
     numeric_summary["abs_skew"] = numeric_summary["skew"].abs()
     numeric_summary.to_csv(reports_dir / "base_feature_numeric_summary.csv")
 
-    skew_plot = numeric_summary.sort_values("abs_skew", ascending=False).head(15).sort_values("abs_skew")
-    plt.figure(figsize=(11, 7))
-    plt.barh(skew_plot.index, skew_plot["abs_skew"])
-    plt.xlabel("Absolute skewness")
-    plt.title("Top 15 Most Skewed Numeric Public Features")
+    # Plot actual distributions rather than presenting skewness itself as a distribution chart.
+    distribution_features = numeric_summary.sort_values(["missing_pct", "abs_skew"]).head(6).index.tolist()
+    fig, axes = plt.subplots(3, 2, figsize=(15, 12))
+    for axis, feature in zip(axes.flat, distribution_features):
+        values = numeric_features[feature].dropna()
+        if values.empty:
+            axis.set_visible(False)
+            continue
+        lower = values.quantile(0.01)
+        upper = values.quantile(0.99)
+        visible_values = values[(values >= lower) & (values <= upper)]
+        axis.hist(visible_values, bins=40)
+        axis.set_title(feature, fontsize=9)
+        axis.set_ylabel("Observations")
+    for axis in axes.flat[len(distribution_features):]:
+        axis.set_visible(False)
+    fig.suptitle("Selected Numeric Public-Feature Distributions", fontsize=16)
+    fig.text(0.5, 0.01, "Display range clipped to each feature's 1st–99th percentiles for readability; source values are unchanged.", ha="center", fontsize=9)
     _save_figure(visuals_dir / "numeric_distributions.png")
 
-    # 6. Pairwise predictor correlation analysis.
-    correlation_matrix = numeric_features.corr()
+    # 6. Pairwise predictor correlation analysis with explicit overlap safeguards.
     correlation_rows: list[dict[str, object]] = []
-    for left_index, left_feature in enumerate(correlation_matrix.columns):
-        for right_index in range(left_index + 1, len(correlation_matrix.columns)):
-            right_feature = correlation_matrix.columns[right_index]
-            correlation = correlation_matrix.iloc[left_index, right_index]
+    numeric_columns = list(numeric_features.columns)
+    for left_index, left_feature in enumerate(numeric_columns):
+        for right_feature in numeric_columns[left_index + 1:]:
+            pair = numeric_features[[left_feature, right_feature]].dropna()
+            overlap_rows = len(pair)
+            if overlap_rows < MIN_CORRELATION_OVERLAP:
+                continue
+            correlation = pair[left_feature].corr(pair[right_feature])
             if pd.notna(correlation):
                 correlation_rows.append(
                     {
                         "feature_1": left_feature,
                         "feature_2": right_feature,
+                        "overlap_rows": int(overlap_rows),
                         "correlation": float(correlation),
                         "abs_correlation": float(abs(correlation)),
                     }
                 )
 
-    meaningful_correlations = pd.DataFrame(correlation_rows)
-    if not meaningful_correlations.empty:
-        meaningful_correlations = (
-            meaningful_correlations.loc[meaningful_correlations["abs_correlation"] >= 0.30]
-            .sort_values("abs_correlation", ascending=False)
-            .reset_index(drop=True)
-        )
-    meaningful_correlations.to_csv(
-        reports_dir / "base_feature_meaningful_correlations.csv",
-        index=False,
+    meaningful_correlations = pd.DataFrame(
+        correlation_rows,
+        columns=["feature_1", "feature_2", "overlap_rows", "correlation", "abs_correlation"],
     )
+    if not meaningful_correlations.empty:
+        meaningful_correlations = meaningful_correlations.loc[
+            meaningful_correlations["abs_correlation"] >= MEANINGFUL_CORRELATION_THRESHOLD
+        ].sort_values(["abs_correlation", "overlap_rows"], ascending=[False, False]).reset_index(drop=True)
+    meaningful_correlations.to_csv(reports_dir / "base_feature_meaningful_correlations.csv", index=False)
 
     top_correlations = meaningful_correlations.head(20).sort_values("correlation")
     plt.figure(figsize=(13, 9))
     if not top_correlations.empty:
-        pair_labels = top_correlations["feature_1"] + " | " + top_correlations["feature_2"]
+        pair_labels = (
+            top_correlations["feature_1"]
+            + " | "
+            + top_correlations["feature_2"]
+            + " (n="
+            + top_correlations["overlap_rows"].astype(str)
+            + ")"
+        )
         plt.barh(pair_labels, top_correlations["correlation"])
     plt.axvline(0, linewidth=0.8)
-    plt.xlabel("Correlation")
-    plt.title("Top 20 Pairwise Public Feature Correlations")
+    plt.xlabel("Pearson correlation")
+    plt.title(f"Top Pairwise Public Feature Correlations (minimum overlap n={MIN_CORRELATION_OVERLAP})")
     _save_figure(visuals_dir / "pairwise_feature_correlations.png")
 
     # 7. Concise findings summary and modeling implications.
@@ -197,81 +207,56 @@ def generate_eda_outputs(
     findings = [
         {
             "analysis": "Gold integrity",
-            "finding": (
-                f"{len(base_features):,} rows, {len(feature_columns):,} public predictors, "
-                f"{base_features['iso3'].nunique():,} countries/areas, {duplicate_keys} duplicate keys."
-            ),
-            "modeling_implication": (
-                "Gold structure is suitable for downstream target integration once the restricted target grain is reconciled."
-            ),
+            "finding": f"{len(base_features):,} rows, {len(feature_columns):,} public predictors, {base_features['iso3'].nunique():,} countries/areas, {duplicate_keys} duplicate keys.",
+            "modeling_implication": "Gold structure is suitable for downstream target integration once the restricted target grain is reconciled.",
         },
         {
             "analysis": "Missingness",
-            "finding": (
-                f"Highest missingness: {highest_missing['column']} ({highest_missing['missing_pct']:.1f}%)."
-                if highest_missing is not None
-                else "No predictor missingness available."
-            ),
-            "modeling_implication": (
-                "Treat missingness as source coverage first; choose imputation or exclusion after target join and modeling-window selection."
-            ),
+            "finding": f"Highest missingness: {highest_missing['column']} ({highest_missing['missing_pct']:.1f}%)." if highest_missing is not None else "No predictor missingness available.",
+            "modeling_implication": "Treat missingness as source coverage first; choose imputation or exclusion after target join and modeling-window selection.",
         },
         {
             "analysis": "Temporal coverage",
-            "finding": (
-                f"Public Gold spans {int(base_features['year'].min())}–{int(base_features['year'].max())}, "
-                "with source-specific coverage varying by year."
-            ),
-            "modeling_implication": (
-                "Use chronological train/validation/test boundaries and prevent future-period leakage in feature construction."
-            ),
+            "finding": f"Public Gold spans {int(base_features['year'].min())}–{int(base_features['year'].max())}, with source-specific coverage varying by year.",
+            "modeling_implication": "Use chronological train/validation/test boundaries and prevent future-period leakage in feature construction.",
         },
         {
             "analysis": "Geographic coverage",
-            "finding": (
-                f"Lowest mean public-feature coverage: {lowest_country['country']} "
-                f"({lowest_country['overall_coverage_pct']:.1f}%)."
-                if lowest_country is not None
-                else "No geographic coverage available."
-            ),
-            "modeling_implication": (
-                "Evaluate geographic representativeness after target join and consider coverage flags or scope restrictions."
-            ),
+            "finding": f"Lowest mean public-feature coverage: {lowest_country['country']} ({lowest_country['overall_coverage_pct']:.1f}%)." if lowest_country is not None else "No geographic coverage available.",
+            "modeling_implication": "Evaluate geographic representativeness after target join and consider coverage flags or scope restrictions.",
         },
         {
             "analysis": "Numeric distributions",
-            "finding": (
-                f"Most skewed numeric feature: {most_skewed.name} (|skew|={most_skewed['abs_skew']:.2f})."
-                if most_skewed is not None
-                else "No numeric predictor summary available."
-            ),
-            "modeling_implication": (
-                "Test log or robust transformations and scaling inside training-only preprocessing pipelines where appropriate."
-            ),
+            "finding": f"Most skewed numeric feature: {most_skewed.name} (|skew|={most_skewed['abs_skew']:.2f})." if most_skewed is not None else "No numeric predictor summary available.",
+            "modeling_implication": "Test log or robust transformations and scaling inside training-only preprocessing pipelines where appropriate.",
         },
         {
             "analysis": "Pairwise correlations",
             "finding": (
-                f"Strongest pair: {strongest_pair['feature_1']} ↔ {strongest_pair['feature_2']} "
-                f"(r={strongest_pair['correlation']:.2f})."
+                f"Strongest eligible pair: {strongest_pair['feature_1']} ↔ {strongest_pair['feature_2']} "
+                f"(r={strongest_pair['correlation']:.2f}, n={int(strongest_pair['overlap_rows']):,})."
                 if strongest_pair is not None
-                else "No pair met the meaningful-correlation threshold."
+                else f"No pair with at least {MIN_CORRELATION_OVERLAP} overlapping observations met |r| ≥ {MEANINGFUL_CORRELATION_THRESHOLD:.2f}."
             ),
-            "modeling_implication": (
-                "Review correlated predictors for redundancy, regularization, or combined representations; correlation is not causality."
-            ),
+            "modeling_implication": "Review correlated predictors for redundancy, regularization, or combined representations; correlation is not causality.",
         },
     ]
 
     findings_summary = pd.DataFrame(findings)
     findings_summary.to_csv(reports_dir / "eda_findings_summary.csv", index=False)
 
-    fig, ax = plt.subplots(figsize=(16, 8))
+    # Wrap long text before rendering so the exported summary is readable without clipping.
+    display_findings = findings_summary.copy()
+    display_findings["analysis"] = display_findings["analysis"].map(lambda value: fill(str(value), width=20))
+    display_findings["finding"] = display_findings["finding"].map(lambda value: fill(str(value), width=58))
+    display_findings["modeling_implication"] = display_findings["modeling_implication"].map(lambda value: fill(str(value), width=68))
+
+    fig, ax = plt.subplots(figsize=(18, 11))
     ax.axis("off")
-    ax.set_title("EDA Findings Summary → Modeling Implications", fontsize=16, pad=18)
+    ax.set_title("EDA Findings Summary → Modeling Implications", fontsize=16, pad=20)
     table = ax.table(
-        cellText=findings_summary.values,
-        colLabels=findings_summary.columns,
+        cellText=display_findings.values,
+        colLabels=display_findings.columns,
         cellLoc="left",
         colLoc="left",
         loc="center",
@@ -279,7 +264,7 @@ def generate_eda_outputs(
     )
     table.auto_set_font_size(False)
     table.set_fontsize(9)
-    table.scale(1, 2.2)
+    table.scale(1, 3.3)
     _save_figure(visuals_dir / "eda_findings_summary.png")
 
     return {
